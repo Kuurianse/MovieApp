@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreMovieRequest;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 
@@ -279,8 +280,13 @@ class MovieController extends Controller implements HasMiddleware
         return view('movies.create');
     }
 
-    public function store(Request $request){
+    public function store(StoreMovieRequest $request){
         // post meminta data dari form atau disini movies
+
+        // dipindahkan ke StoreMovieRequest app\Http\Requests\StoreMovieRequest.php
+        // $request->validate([
+
+        // ]);
 
         $newMovie = [
             'title' => $request['title'],

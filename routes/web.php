@@ -18,7 +18,7 @@ Route::get('/', function () {
         'release_date' => '2013-04-07',
         'cast' => ['Yuki Kaji', 'Yui Ishikawa', 'Marina Inoue', 'Hiroshi Kamiya'],
         'genres' => ['Action', 'Drama', 'Fantasy'],
-        'image' => 'https://image.tmdb.org/t/p/w500/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg',
+        'image' => '',
         ],
         [
         'title' => 'Demon Slayer: Kimetsu no Yaiba',
