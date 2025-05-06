@@ -28,8 +28,8 @@ class StoreMovieRequest extends FormRequest
             'description' => 'required|min:10|max:500',
             'description_id' => 'required|min:10|max:500',
             'release_date' => 'required|date',
-            'cast' => 'required|min:2|max:100',
-            'genres' => 'required|min:1|max:100',
+            'cast' => 'required|min:3|max:100',
+            'genres' => 'required|min:3|max:100',
             'image' => 'required|url',
         ];
     }
@@ -51,10 +51,10 @@ class StoreMovieRequest extends FormRequest
             'release_date.required' => 'Tanggal rilis film harus diisi',
             'release_date.date' => 'Tanggal rilis film tidak valid',
             'cast.required' => 'Pemeran film harus diisi',
-            'cast.min' => 'Pemeran film minimal 2 karakter',
+            'cast.min' => 'Pemeran film minimal 3 karakter',
             'cast.max' => 'Pemeran film maksimal 100 karakter',
             'genres.required' => 'Genre film harus diisi',
-            'genres.min' => 'Genre film minimal 1 karakter',
+            'genres.min' => 'Genre film minimal 3 karakter',
             'genres.max' => 'Genre film maksimal 100 karakter',
         ];
     }
