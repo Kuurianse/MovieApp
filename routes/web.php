@@ -477,3 +477,53 @@ Route::get('/home', function(){
 
     return view('home', compact(['user', 'movieCategory', 'movies']))->with('pageTitle', 'Home');
 });
+
+// Session =========================================================================================================
+// digunakan untuk menyimpan data di server, bisa diakses di semua route dan controller.
+
+Route::get('/session', function(Request $request){
+    // Membuat session
+    // session(['is_membership' => 'yes']);
+    session()->put('is_membership', 'yes');
+    // return 'OK';
+
+    // bisa juga menggunakan request, sama aja
+    // $request->session()->put('is_membership', 'yes member');
+    
+    // Mengambil session
+    // return session('is_membership'); 
+    // return $request->session()->get('is_membership');
+    // output: yes
+
+    
+    // Menyimpan array ke dalam session
+    session(['days' => ['Monday', 'Tuesday', 'Wednesday']]);
+
+    // Menambahkan data ke dalam session
+    session()->push('days', 'Thursday');
+    session()->push('days', 'Friday');
+    
+    // Menghapus Tuesday dari session
+    // session()->forget('days'); // menghapus days
+    session()->forget('days.1'); // menghapus index ke 1 Tuesday
+    // session()->put('days', array_diff(session('days'), ['Tuesday'])); // sama aja tapi ribet
+    /*
+        Penjelasan:
+
+        session('days'):
+        Fungsi session() digunakan untuk mengambil data dari sesi dengan kunci 'days'.
+        Misalnya, jika sesi 'days' berisi array seperti ['Monday', 'Tuesday', 'Wednesday'], maka fungsi ini akan mengembalikan array tersebut.
+
+        array_diff(session('days'), ['Tuesday']):
+        Fungsi PHP array_diff() membandingkan dua array dan mengembalikan elemen-elemen yang ada di array pertama tetapi tidak ada di array kedua.
+        Dalam hal ini, session('days') adalah array pertama, dan ['Tuesday'] adalah array kedua.
+        Jadi, jika session('days') berisi ['Monday', 'Tuesday', 'Wednesday'], maka hasilnya adalah ['Monday', 'Wednesday'] (karena 'Tuesday' dihapus).
+
+        session()->put('days', ...):
+        Fungsi session()->put() digunakan untuk menyimpan data baru ke dalam sesi.
+        Dalam hal ini, kunci 'days' akan diperbarui dengan hasil dari array_diff(), yaitu array yang sudah dihapus elemen 'Tuesday'.
+    */
+
+    session()->forget('is_membership'); // menghapus is_membership
+    return $request->session()->all();
+});
