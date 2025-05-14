@@ -1,0 +1,165 @@
+aku sedang membuat website laravel 11 yang menampilkan daftar movie, contoh isinya: 
+"title" => "Death Note", "title_japanese" => "デスノート (Desu Nōto)", "description" => "Light Yagami, a genius high school student, finds the Death Note, a notebook that kills anyone whose name is written in it. Believing he can cleanse the world of crime, he engages in a deadly cat-and-mouse game with the brilliant detective L.", "description_id" => "Light Yagami, seorang siswa SMA jenius, menemukan Death Note, buku catatan yang membunuh siapa saja yang namanya ditulis di dalamnya. Percaya bahwa ia dapat membersihkan dunia dari kejahatan, ia terlibat dalam permainan kucing-dan-tikus mematikan dengan detektif brilian L.", "release_date" => "2006-10-04", "cast" => ["Mamoru Miyano", "Aya Hirano", "Shido Nakamura"], "genres" => ["Mystery", "Supernatural", "Thriller"], "image" => "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/tCZFfYTIwrR7n94J6G14Y4hAFU6.jpg"
+saya ingin membuat databasenya tapi tidak tahu apa saja tabel, relasi, atau fieldnya. bisakah kamu bantu aku, aku ingin movienya ada kategorinya juga, dan menggunakan database mysql.
+
+# Create migration files
+php artisan make:migration create_genres_table
+php artisan make:migration create_movies_table
+php artisan make:migration create_casts_table
+php artisan make:migration create_movie_genre_table
+php artisan make:migration create_movie_cast_table
+
+# Create models
+php artisan make:model Genre
+php artisan make:model Movie
+php artisan make:model Cast
+
+# Create controllers
+php artisan make:controller GenreController --resource
+php artisan make:controller MovieController --resource
+php artisan make:controller CastController --resource
+
+# Create seeders
+php artisan make:seeder GenreSeeder
+php artisan make:seeder MovieSeeder
+php artisan make:seeder CastSeeder
+
+# Run the migrations
+php artisan migrate
+
+# Run the seeders
+php artisan db:seed
+
+# Start the development server
+php artisan serve
+
+
+// 1. create_genres_table.php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+  public function up()
+  {
+    Schema::create('genres', function (Blueprint $table) {
+      $table->id();
+      $table->string('name');
+      $table->string('slug')->unique();
+      $table->timestamps();
+    });
+  }
+
+  public function down()
+  {
+    Schema::dropIfExists('genres');
+  }
+};
+
+// 2. create_movies_table.php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+  public function up()
+  {
+    Schema::create('movies', function (Blueprint $table) {
+      $table->id();
+      $table->string('title');
+      $table->string('title_japanese')->nullable();
+      $table->string('slug')->unique();
+      $table->text('description');
+      $table->text('description_id');
+      $table->date('release_date');
+      $table->string('image');
+      $table->timestamps();
+    });
+  }
+
+  public function down()
+  {
+    Schema::dropIfExists('movies');
+  }
+};
+
+// 3. create_casts_table.php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+  public function up()
+  {
+    Schema::create('casts', function (Blueprint $table) {
+      $table->id();
+      $table->string('name');
+      $table->string('slug')->unique();
+      $table->timestamps();
+    });
+  }
+
+  public function down()
+  {
+    Schema::dropIfExists('casts');
+  }
+};
+
+// 4. create_movie_genre_table.php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+  public function up()
+  {
+    Schema::create('movie_genre', function (Blueprint $table) {
+      $table->id();
+      $table->foreignId('movie_id')->constrained()->onDelete('cascade');
+      $table->foreignId('genre_id')->constrained()->onDelete('cascade');
+      $table->timestamps();
+    });
+  }
+
+  public function down()
+  {
+    Schema::dropIfExists('movie_genre');
+  }
+};
+
+// 5. create_movie_cast_table.php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+  public function up()
+  {
+    Schema::create('movie_cast', function (Blueprint $table) {
+      $table->id();
+      $table->foreignId('movie_id')->constrained()->onDelete('cascade');
+      $table->foreignId('cast_id')->constrained()->onDelete('cascade');
+      $table->timestamps();
+    });
+  }
+
+  public function down()
+  {
+    Schema::dropIfExists('movie_cast');
+  }
+};

@@ -2,6 +2,7 @@
 
 // use App\Http\Middleware\CheckMembership; -> udah pake alias
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MovieController;
 use Illuminate\Http\Request;
@@ -215,6 +216,8 @@ Route::get('/', function () {
     return view('welcome', ['movies' => $movies]);
 })->name('welcome');
 // Route::get('/', [MovieController::class, 'index']);
+
+Route::get('/categories', [CategoryController::class, 'index']);
 
 $movie = [];
 
