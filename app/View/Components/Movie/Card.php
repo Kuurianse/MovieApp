@@ -16,14 +16,17 @@ class Card extends Component
     public $image;
     public $title;
     public $releasedate;
+    public $slug;
+    public $movieId; // To store the actual movie ID
 
-    public function __construct($index, $image, $title, $releasedate)
+    public function __construct($index, $image, $title, $releasedate, $slug, $movieId)
     {
-        $this->index = $index;
-        // $this->image = $this->getImage($image);
+        $this->index = $index; // Keep for unique element IDs if needed
         $this->image = $image;
         $this->title = $title;
         $this->releasedate = $releasedate;
+        $this->slug = $slug;
+        $this->movieId = $movieId;
 
         if($this->isValid()){
             $this->title = Str::upper($title);

@@ -23,7 +23,12 @@ class DatabaseSeeder extends Seeder
 
         // php artisan db:seed, jadi tidak perlu php artisan db:seed CategorySeeder
         $this->call([
-            CategorySeeder::class,
+            UserSeeder::class,      // Assuming you want to seed users
+            CategorySeeder::class,  // Assuming categories are general and should exist first
+            GenreSeeder::class,
+            CastSeeder::class,
+            MovieSeeder::class,     // MovieSeeder depends on Genres and Casts
+            RatingSeeder::class,    // RatingSeeder depends on Users and Movies
         ]);
     }
 }

@@ -1,0 +1,412 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreMovieRequest;
+use App\Models\Category;
+use App\Models\Movie;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+
+// implements HasMiddleware adalah interface yang ada di Controller, agar bisa menggunakan middleware
+class MovieController extends Controller implements HasMiddleware
+{
+
+    // property untuk menyimpan data movie, agar bisa diakses di semua method, property adalah variabel yang ada di dalam class
+    private $movies = [];
+
+    // constructor, akan dijalankan saat class ini (MovieController) diinstansiasi
+    public function __construct()
+    {
+        // for($i = 0; $i < 10; $i++){
+        //     $this->movies[] = [
+        //         'title' => 'Movie Title from Controller ' . ($i + 1),
+        //         'description' => 'Description for movie ' . ($i + 1),
+        //         'year' => 2000 + rand(1, 10),
+        //         'rating' => rand(1, 10),
+        //     ];
+        // }
+    
+        $this->movies = [
+            [
+            'title' => 'Attack on Titan',
+            'title_japanese' => '進撃の巨人 (Shingeki no Kyojin)',
+            'description' => 'In a world where humanity resides within enormous walled cities to protect themselves from Titans, a young boy named Eren Yeager joins the Scout Regiment to get revenge after a Titan destroys his hometown. The story explores themes of survival, freedom, and the human spirit as Eren and his friends uncover the truth behind the Titans and the world they live in.',
+            'description_id' => 'Di dunia di mana umat manusia tinggal di dalam kota-kota besar yang dikelilingi tembok raksasa untuk melindungi diri dari Titan, seorang anak muda bernama Eren Yeager bergabung dengan Pasukan Pengintai untuk membalas dendam setelah Titan menghancurkan kampung halamannya. Cerita ini mengeksplorasi tema bertahan hidup, kebebasan, dan semangat manusia saat Eren dan teman-temannya mengungkap kebenaran di balik Titan dan dunia tempat mereka tinggal.',
+            'release_date' => '2013-04-07',
+            'cast' => ['Yuki Kaji', 'Yui Ishikawa', 'Marina Inoue', 'Hiroshi Kamiya'],
+            'genres' => ['Action', 'Drama', 'Fantasy'],
+            'image' => 'https://image.tmdb.org/t/p/w500/hTP1DtLGFamjfu8WqjnuQdP1n4i.jpg',
+            ],
+            [
+            'title' => 'Demon Slayer: Kimetsu no Yaiba',
+            'title_japanese' => '鬼滅の刃 (Kimetsu no Yaiba)',
+            'description' => 'After his family is slaughtered by demons, Tanjiro Kamado becomes a demon slayer to save his sister Nezuko, who was turned into a demon. The story follows Tanjiro’s journey as he faces powerful demons, learns new techniques, and uncovers the secrets of the demon world.',
+            'description_id' => 'Setelah keluarganya dibantai oleh iblis, Tanjiro Kamado menjadi pembasmi iblis untuk menyelamatkan adiknya, Nezuko, yang berubah menjadi iblis. Cerita ini mengikuti perjalanan Tanjiro saat ia menghadapi iblis-iblis kuat, mempelajari teknik baru, dan mengungkap rahasia dunia iblis.',
+            'release_date' => '2019-04-06',
+            'cast' => ['Natsuki Hanae', 'Akari Kito', 'Hiro Shimono', 'Yoshitsugu Matsuoka'],
+            'genres' => ['Action', 'Supernatural', 'Adventure'],
+            'image' => 'https://image.tmdb.org/t/p/w500/wrCVHdkBlBWdJUZPvnJWcBRuhSY.jpg',
+            ],
+            [
+            'title' => 'Jujutsu Kaisen',
+            'title_japanese' => '呪術廻戦 (Jujutsu Kaisen)',
+            'description' => 'A boy swallows a cursed talisman - the finger of a demon - and becomes cursed himself. He enters a school of sorcerers to learn how to exorcise curses and protect humanity from supernatural threats. The story delves into the dark and mysterious world of curses and sorcery.',
+            'description_id' => 'Seorang anak menelan jimat terkutuk - jari iblis - dan menjadi terkutuk sendiri. Dia masuk ke sekolah penyihir untuk belajar cara mengusir kutukan dan melindungi umat manusia dari ancaman supernatural. Cerita ini menyelami dunia gelap dan misterius dari kutukan dan sihir.',
+            'release_date' => '2020-10-03',
+            'cast' => ['Junya Enoki', 'Yuma Uchida', 'Asami Seto', 'Yuichi Nakamura'],
+            'genres' => ['Action', 'Supernatural'],
+            'image' => 'https://www.themoviedb.org/t/p/w600_and_h900_bestv2/fHpKWq9ayzSk8nSwqRuaAUemRKh.jpg',
+            ],
+            [
+            'title' => 'One Piece',
+            'title_japanese' => 'ワンピース (Wan Pīsu)',
+            'description' => 'Monkey D. Luffy and his pirate crew search for the ultimate treasure, the One Piece, in order to become the next Pirate King. The story is filled with epic adventures, battles, and the unbreakable bonds of friendship as they explore the vast and dangerous seas.',
+            'description_id' => 'Monkey D. Luffy dan kru bajak lautnya mencari harta karun tertinggi, One Piece, untuk menjadi Raja Bajak Laut berikutnya. Cerita ini penuh dengan petualangan epik, pertempuran, dan ikatan persahabatan yang tak tergoyahkan saat mereka menjelajahi lautan yang luas dan berbahaya.',
+            'release_date' => '1999-10-20',
+            'cast' => ['Mayumi Tanaka', 'Kazuya Nakai', 'Akemi Okamura', 'Hiroaki Hirata'],
+            'genres' => ['Action', 'Adventure', 'Fantasy'],
+            'image' => 'https://www.themoviedb.org/t/p/w600_and_h900_bestv2/cMD9Ygz11zjJzAovURpO75Qg7rT.jpg',
+            ],
+            [
+            'title' => 'Chainsaw Man',
+            'title_japanese' => 'チェンソーマン (Chensō Man)',
+            'description' => 'Denji, a poor young man, is forced to kill devils to pay off his deceased father’s debt. He merges with his pet devil Pochita and becomes Chainsaw Man. The story is a mix of dark humor, intense action, and emotional moments as Denji navigates his new life.',
+            'description_id' => 'Denji, seorang pemuda miskin, dipaksa membunuh iblis untuk melunasi hutang ayahnya yang telah meninggal. Dia bergabung dengan iblis peliharaannya, Pochita, dan menjadi Chainsaw Man. Cerita ini adalah campuran humor gelap, aksi intens, dan momen emosional saat Denji menjalani kehidupan barunya.',
+            'release_date' => '2022-10-11',
+            'cast' => ['Kikunosuke Toya', 'Tomori Kusunoki', 'Shogo Sakata', 'Fairouz Ai'],
+            'genres' => ['Action', 'Horror', 'Fantasy'],
+            'image' => 'https://www.themoviedb.org/t/p/w600_and_h900_bestv2/yVtx7Xn9UxNJqvG2BkvhCcmed9S.jpg',
+            ],
+            [
+                "title" => "Spy x Family",
+                "title_japanese" => "スパイファミリー (Supai Famirī)",
+                "description" => "A top spy codenamed Twilight must build a fake family to infiltrate an elite school. Unbeknownst to him, his wife is an assassin and his adopted daughter is a telepath. Together, they navigate daily life filled with secrets, comedy, and chaos, all while hiding their true identities.",
+                "description_id" => "Seorang mata-mata top dengan nama sandi Twilight harus membangun keluarga palsu untuk menyusup ke sekolah elit. Tanpa sepengetahuannya, istrinya adalah seorang pembunuh bayaran dan anak angkatnya adalah seorang telepatis. Bersama-sama, mereka menjalani kehidupan sehari-hari penuh rahasia, komedi, dan kekacauan, sambil menyembunyikan identitas asli mereka.",
+                "release_date" => "2022-04-09",
+                "cast" => ["Takuya Eguchi", "Saori Hayami", "Atsumi Tanezaki"],
+                "genres" => ["Action", "Comedy", "Slice of Life"],
+                "image" => "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/gHZqglFWJTFwx6rnTq4vkPRnuxu.jpg"
+            ],
+            [
+                "title" => "Tokyo Revengers",
+                "title_japanese" => "東京卍リベンジャーズ (Tōkyō Ribenjāzu)",
+                "description" => "Takemichi Hanagaki is a struggling adult who suddenly travels back in time to his middle school days. Determined to save his ex-girlfriend from being killed by a gang, he infiltrates the Tokyo Manji Gang and works to change the past and the future.",
+                "description_id" => "Takemichi Hanagaki, seorang pria dewasa yang sedang terpuruk, tiba-tiba kembali ke masa SMP-nya. Bertekad menyelamatkan mantan pacarnya dari kematian akibat geng, ia menyusup ke Geng Tokyo Manji dan berusaha mengubah masa lalu dan masa depan.",
+                "release_date" => "2021-04-11",
+                "cast" => ["Yuki Shin", "Azumi Waki", "Yuu Hayashi"],
+                "genres" => ["Action", "Drama", "Supernatural"],
+                "image" => "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/arB3L9pZZBSzUPSC8BEv8c3X0bF.jpg"
+            ],
+            [
+                "title" => "My Hero Academia",
+                "title_japanese" => "僕のヒーローアカデミア (Boku no Hīrō Akademia)",
+                "description" => "In a world where most people have superpowers known as \"Quirks\", Izuku Midoriya dreams of becoming a hero despite being born without one. After inheriting the power of the greatest hero, All Might, he joins U.A. High School to train and fight villains.",
+                "description_id" => "Di dunia di mana sebagian besar orang memiliki kekuatan super yang disebut \"Quirk\", Izuku Midoriya bermimpi menjadi pahlawan meski lahir tanpa kekuatan. Setelah mewarisi kekuatan pahlawan terhebat, All Might, ia masuk Sekolah U.A. untuk berlatih dan melawan para penjahat.",
+                "release_date" => "2016-04-03",
+                "cast" => ["Daiki Yamashita", "Nobuhiko Okamoto", "Kenta Miyake", "Ayane Sakura"],
+                "genres" => ["Action", "Superhero"],
+                "image" => "https://image.tmdb.org/t/p/w500/ivOLM47yJt90P19RH1NvJrAJz9F.jpg"
+            ],
+            [
+                "title" => "Naruto Shippuden",
+                "title_japanese" => "ナルト- 疾風伝 (Naruto Shippūden)",
+                "description" => "After two years of intense training under the legendary ninja Jiraiya, Naruto Uzumaki returns to Konoha to protect his friends and confront the mysterious organization known as Akatsuki. He faces new threats, reconnects with old allies, and grows stronger both in skill and spirit.",
+                "description_id" => "Setelah dua tahun pelatihan intens di bawah bimbingan ninja legendaris Jiraiya, Naruto Uzumaki kembali ke Konoha untuk melindungi teman-temannya dan menghadapi organisasi misterius bernama Akatsuki. Ia menghadapi ancaman baru, bertemu kembali dengan sekutu lama, dan tumbuh lebih kuat baik dalam kemampuan maupun semangat.",
+                "release_date" => "2007-02-15",
+                "cast" => ["Junko Takeuchi", "Chie Nakamura", "Noriaki Sugiyama"],
+                "genres" => ["Action", "Adventure"],
+                "image" => "https://image.tmdb.org/t/p/w500/zAYRe2bJxpWTVrwwmBc00VFkAf4.jpg"
+            ],
+            [
+                "title" => "Bleach: Thousand-Year Blood War",
+                "title_japanese" => "ブリーチ 千年血戦篇 (Burīchi Sennen Kessen-hen)",
+                "description" => "Ichigo Kurosaki returns to face the Quincy army in an all-out war that threatens the balance between the living world and the Soul Society. Reuniting with old friends, he uncovers hidden powers and confronts enemies more formidable than ever before.",
+                "description_id" => "Ichigo Kurosaki kembali menghadapi tentara Quincy dalam perang penuh yang mengancam keseimbangan antara dunia nyata dan Soul Society. Bersatu kembali dengan teman lama, ia menemukan kekuatan tersembunyi dan menghadapi musuh yang lebih tangguh dari sebelumnya.",
+                "release_date" => "2022-10-10",
+                "cast" => ["Masakazu Morita", "Fumiko Orikasa", "Yuki Matsuoka"],
+                "genres" => ["Action", "Supernatural"],
+                "image" => "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/2EewmxXe72ogD0EaWM8gqa0ccIw.jpg"
+            ],
+            [
+                "title" => "Sword Art Online",
+                "title_japanese" => "ソードアート・オンライン (Sōdo Āto Onrain)",
+                "description" => "Players trapped in the virtual reality MMORPG Sword Art Online must fight their way through 100 floors to escape. When death in the game means death in real life, solo player Kirito and healer Asuna form a fragile alliance to survive and uncover the game's mysteries.",
+                "description_id" => "Para pemain yang terjebak dalam MMORPG realitas virtual Sword Art Online harus bertarung melewati 100 lantai untuk melarikan diri. Ketika kematian di dalam game berarti kematian di dunia nyata, pemain tunggal Kirito dan penyembuh Asuna membentuk aliansi rapuh untuk bertahan hidup dan mengungkap misteri game.",
+                "release_date" => "2012-07-08",
+                "cast" => ["Yoshitsugu Matsuoka", "Haruka Tomatsu", "Ayana Taketatsu"],
+                "genres" => ["Action", "Adventure", "Fantasy"],
+                "image" => "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/9m8bFIXPg26taNrFSXGwEORVACD.jpg"
+            ],
+            [
+                "title" => "Fairy Tail",
+                "title_japanese" => "フェアリーテイル (Fearī Teiru)",
+                "description" => "Lucy Heartfilia, a celestial spirit mage, joins the Fairy Tail guild and teams up with the fire mage Natsu Dragneel and his talking cat Happy. Together, they undertake dangerous missions, forge unbreakable bonds, and defend the guild against dark forces.",
+                "description_id" => "Lucy Heartfilia, seorang penyihir roh surgawi, bergabung dengan guild Fairy Tail dan bekerja sama dengan penyihir api Natsu Dragneel serta kucing berbicara bernama Happy. Bersama-sama, mereka menjalani misi berbahaya, membentuk ikatan tak terputuskan, dan melindungi guild dari kekuatan gelap.",
+                "release_date" => "2009-10-12",
+                "cast" => ["Tetsuya Kakihara", "Aya Hirano", "Rie Kugimiya"],
+                "genres" => ["Action", "Adventure", "Fantasy"],
+                "image" => "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/h50lj7xO65qafNYZCrfQ7ztkMBD.jpg"
+            ],
+            [
+                "title" => "Black Clover",
+                "title_japanese" => "ブラッククローバー (Burakku Kurōbā)",
+                "description" => "Asta, a boy born without magic in a world where magic is everything, dreams of becoming the Wizard King. Armed with an anti-magic sword and relentless determination, he joins the Magic Knights and challenges fate itself to prove his worth.",
+                "description_id" => "Asta, seorang anak yang lahir tanpa sihir di dunia di mana sihir adalah segalanya, bermimpi menjadi Raja Penyihir. Dipersenjatai dengan pedang anti-sihir dan tekad yang tak tergoyahkan, ia bergabung dengan Ksatria Sihir dan menantang takdir untuk membuktikan kemampuannya.",
+                "release_date" => "2017-10-03",
+                "cast" => ["Gakuto Kajiwara", "Nobunaga Shimazaki", "Kana Yuuki"],
+                "genres" => ["Action", "Fantasy"],
+                "image" => "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/kaMisKeOoTBPxPkbC3OW7Wgt6ON.jpg"
+            ],
+            [
+                "title" => "Re:Zero - Starting Life in Another World",
+                "title_japanese" => "Re:ゼロから始める異世界生活 (Re:Zero kara Hajimeru Isekai Seikatsu)",
+                "description" => "Subaru Natsuki is suddenly transported to another world and discovers he has the power to return from death. Using this ability, he attempts to save his friends from tragic fates, but each reset brings new heartache and challenges.",
+                "description_id" => "Subaru Natsuki tiba-tiba dipindahkan ke dunia lain dan menemukan bahwa ia memiliki kekuatan untuk kembali dari kematian. Dengan kemampuan ini, ia mencoba menyelamatkan teman-temannya dari nasib tragis, tetapi setiap kali ulang kembali membawa kesedihan dan tantangan baru.",
+                "release_date" => "2016-04-04",
+                "cast" => ["Yusuke Kobayashi", "Rie Takahashi", "Inori Minase"],
+                "genres" => ["Action", "Drama", "Fantasy"],
+                "image" => "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/aRwmcX36r1ZpR5Xq5mmFcpUDQ8J.jpg"
+            ],
+            [
+                "title" => "Erased",
+                "title_japanese" => "僕だけがいない街 (Boku dake ga Inai Machi)",
+                "description" => "Satoru Fujinuma possesses the 'Revival' ability to go back in time moments before a tragedy. When his mother is murdered, he is sent 18 years into the past and must solve a series of child kidnappings to avert both murders.",
+                "description_id" => "Satoru Fujinuma memiliki kemampuan 'Revival' untuk kembali ke masa lalu beberapa saat sebelum tragedi. Ketika ibunya dibunuh, ia dikirim 18 tahun ke masa lalu dan harus memecahkan serangkaian penculikan anak untuk mencegah kedua pembunuhan tersebut.",
+                "release_date" => "2016-01-08",
+                "cast" => ["Shinnosuke Mitsushima", "Tao Tsuchiya", "Aoi Yuki"],
+                "genres" => ["Drama", "Mystery", "Supernatural"],
+                "image" => "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/EljUwZJhpuYfVuSfqY8Pt1xxpH.jpg"
+            ],
+            [
+                "title" => "Death Note",
+                "title_japanese" => "デスノート (Desu Nōto)",
+                "description" => "Light Yagami, a genius high school student, finds the Death Note, a notebook that kills anyone whose name is written in it. Believing he can cleanse the world of crime, he engages in a deadly cat-and-mouse game with the brilliant detective L.",
+                "description_id" => "Light Yagami, seorang siswa SMA jenius, menemukan Death Note, buku catatan yang membunuh siapa saja yang namanya ditulis di dalamnya. Percaya bahwa ia dapat membersihkan dunia dari kejahatan, ia terlibat dalam permainan kucing-dan-tikus mematikan dengan detektif brilian L.",
+                "release_date" => "2006-10-04",
+                "cast" => ["Mamoru Miyano", "Aya Hirano", "Shido Nakamura"],
+                "genres" => ["Mystery", "Supernatural", "Thriller"],
+                "image" => "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/tCZFfYTIwrR7n94J6G14Y4hAFU6.jpg"
+            ],
+            [
+                "title"=> "Fullmetal Alchemist Brotherhood",
+                "title_japanese"=> "鋼の錬金術師 FULLMETAL ALCHEMIST (Hagane no Renkinjutsushi)",
+                "description"=> "Brothers Edward and Alphonse Elric attempt human transmutation to revive their mother and suffer tragic consequences. They then set out to find the Philosopher’s Stone to restore their bodies, uncovering a dark government conspiracy along the way.",
+                "description_id"=> "Saudara Edward dan Alphonse Elric melakukan transmutasi manusia untuk menghidupkan kembali ibu mereka dan mengalami konsekuensi tragis. Mereka kemudian memulai pencarian Batu Bertuah untuk mengembalikan tubuh mereka, sambil mengungkap konspirasi pemerintah yang gelap.",
+                "release_date"=> "2009-04-05",
+                "cast"=> ["Romi Park", "Rie Kugimiya", "Shinichiro Miki"],
+                "genres"=> ["Action", "Adventure", "Fantasy"],
+                "image"=> "https://image.tmdb.org/t/p/w500/5ZFUEOULaVml7pQuXxhpR2SmVUw.jpg"
+            ],
+            [
+                "title"=> "Steins;Gate",
+                "title_japanese"=> "シュタインズ・ゲート (Shutainzu Gēto)",
+                "description"=> "Rintaro Okabe and friends accidentally invent a time machine using a microwave and a cell phone. As they alter past events to save lives, they discover that each change creates unforeseen dangers that threaten reality itself.",
+                "description_id"=> "Rintaro Okabe dan teman-temannya secara tidak sengaja menemukan mesin waktu menggunakan microwave dan ponsel. Saat mereka mengubah peristiwa masa lalu untuk menyelamatkan nyawa, mereka menyadari bahwa setiap perubahan menciptakan bahaya tak terduga yang mengancam realitas itu sendiri.",
+                "release_date"=> "2011-04-06",
+                "cast"=> ["Mamoru Miyano", "Asami Imai", "Kana Hanazawa"],
+                "genres"=> ["Drama", "Sci-Fi", "Thriller"],
+                "image"=> "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/5DZix6ggRiFEbsGqUeTAI1z2wtX.jpg"
+            ],
+            [
+                "title"=> "Hunter x Hunter",
+                "title_japanese"=> "ハンター×ハンター (Hantā Hantā)",
+                "description"=> "Gon Freecss learns his father, a legendary Hunter, is alive. He passes the perilous Hunter Exam and sets off across a world of dangerous beasts, political intrigue, and moral ambiguity to find him and forge his own path.",
+                "description_id"=> "Gon Freecss mengetahui bahwa ayahnya, seorang Hunter legendaris, masih hidup. Ia melewati Ujian Hunter yang berbahaya dan memulai perjalanan melintasi dunia yang dipenuhi binatang buas, intrik politik, dan ambiguitas moral untuk menemukannya dan menapaki jalannya sendiri.",
+                "release_date"=> "2011-10-02",
+                "cast"=> ["Megumi Han", "Mariya Ise", "Miyuki Sawashiro"],
+                "genres"=> ["Action", "Adventure", "Fantasy"],
+                "image"=> "https://www.themoviedb.org/t/p/w600_and_h900_bestv2/i2EEr2uBvRlAwJ8d8zTG2Y19mIa.jpg"
+            ],
+            [
+                "title"=> "The Rising of the Shield Hero",
+                "title_japanese"=> "盾の勇者の成り上がり (Tate no Yūsha no Nariagari)",
+                "description"=> "Naofumi Iwatani is summoned to another world as one of four Cardinal Heroes but is betrayed and falsely accused, losing his status and wealth. With only his Legendary Shield, he survives prejudice and teams up with Raphtalia to defend the kingdom.",
+                "description_id"=> "Naofumi Iwatani dipanggil ke dunia lain sebagai salah satu dari empat Pahlawan Utama namun dikhianati dan difitnah, kehilangan status dan kekayaannya. Dengan hanya perisai legendarisnya, ia bertahan menghadapi prasangka dan bekerja sama dengan Raphtalia untuk melindungi kerajaan.",
+                "release_date"=> "2019-01-09",
+                "cast"=> ["Kaito Ishikawa", "Asami Seto", "Rina Hidaka"],
+                "genres"=> ["Action", "Adventure", "Fantasy"],
+                "image"=> "https://image.tmdb.org/t/p/w500/6cXf5EDwVhsRv8GlBzUTVnWuk8Z.jpg"
+            ]
+        ];
+    }
+
+    public static function middleware(){
+        // return [
+        //     'isAuth',
+        //     new Middleware('isMember', only: ['show']),
+        //     // new Middleware('isMember', except: ['show']),
+        //     // Mengaktifkan middleware isMember hanya pada method show, 'except' kecuali method show
+        // ];
+    }
+
+    public function index(){
+        $movies = $this->movies;
+        // return view('movies.index', compact('movies'))->with([
+        //     'pageTitle' => 'List of Movies'
+        // ]);
+        return view('welcome', compact('movies'))->with([
+            'pageTitle' => 'List of Movies'
+        ]); 
+        // compact adalah fungsi untuk mengubah variabel menjadi array, jadi ga perlu array lagi
+
+        // return view('movies.index', ['movies' => $movies]);
+        // membuat variabel bernama $movies di dalam view (movie-index.blade.php), dan nilainya diisi dari $this->movies yang berasal dari contructor
+
+        // return view('movie-index', compact($this->movies)); // salah
+    
+        // return $this->movies;
+        // return view('index', compact('movies')); ga bisa karena ga ada view index
+
+        // $movies = $this->movies;
+        // return compact('movies');
+
+        // return dengan json
+        // return response()->json([
+        //     'movies' => $this->movies,
+        //     'message' => 'List of Movies',
+        // ], 201);
+    }
+
+    // parameter id secara otomatis akan diisi dengan id yang ada di url, dan ga harus $id, begitupun pada route
+    public function show($id){
+        $movie = $this->movies[$id];
+        // return view('movies.show', compact('movie'));
+        return view('movies.show', ['movie' => $movie, 'movieId' => $id]);
+        // return view('movies.show', ['movie' => $this->movies[$id]]);
+
+        // return $this->movies[$id];
+    }
+
+    public function create(){
+        return view('movies.create');
+    }
+
+    public function store(StoreMovieRequest $request){
+        // post meminta data dari form atau disini movies
+
+        // dipindahkan ke StoreMovieRequest app\Http\Requests\StoreMovieRequest.php
+        // $request->validate([
+
+        // ]);
+
+        $newMovie = [
+            'title' => $request['title'],
+            'title_japanese' => $request['title_japanese'],
+            'description' => $request['description'],
+            'description_id' => $request['description_id'],
+            'release_date' => $request['release_date'],
+            'cast' => explode(', ', $request['cast']),
+            'genres' => explode(', ', $request['genres']),
+            'image' => $request['image'],
+        ];
+
+        $this->movies[] = $newMovie;
+
+        // return $this->movies; bukan menampilkan data yang baru saja ditambahkan, tapi menampilkan semua data
+        return $this->index(); // meneruskan ke method index agar terupdate datanya
+    }
+
+    public function edit($id){
+        $movie = $this->movies[$id];
+        // implode untuk mengubah array menjadi string
+        // explode untuk mengubah string menjadi array
+        $movie['cast'] = implode(', ', $movie['cast']);
+        $movie['genres'] = implode(', ', $movie['genres']);
+        return view('movies.edit', ['movie' => $movie, 'movieId' => $id]);
+    }
+
+    public function update(Request $request, $id){
+
+        // $this->movies[$id]['title'] = request('title');
+        // $this->movies[$id]['description'] = request('description');
+        // $this->movies[$id]['year'] = request('year');
+        // $this->movies[$id]['rating'] = request('rating');
+        
+        // $request->validate([   
+        //     'title' => 'required|max:200',
+        //     'description' => 'required|max:10',
+        //     'year' => 'required|max:4',
+        //     'rating' => 'required|max:2'
+        // ]);
+        
+        // method input hanya bisa saat POST, PUT, PATCH
+        // $this->movies[$id]['title'] = $request['title'];
+        $this->movies[$id]['title'] = $request->input('title');
+        $this->movies[$id]['title_japanese'] = $request->input('title_japanese');
+        $this->movies[$id]['description'] = $request->input('description');
+        $this->movies[$id]['description_id'] = $request->input('description_id');
+        $this->movies[$id]['release_date'] = $request->input('release_date');
+        $this->movies[$id]['cast'] = explode(', ', $request->input('cast'));
+        $this->movies[$id]['genres'] = explode(', ', $request->input('genres'));
+        $this->movies[$id]['image'] = $request->input('image');
+
+        // return $this->movies[$id];
+        return $this->show($id);
+        // return $this->index();
+    }
+
+    public function destroy($id){
+        // unset adalah fungsi untuk menghapus data dari array
+        unset($this->movies[$id]);
+        // return $this->movies;
+        return $this->index();
+    }
+
+    // attachCategory adalah method untuk menghubungkan movie dengan category
+    public function attachCategory(){
+        
+        // menambahkan category dengan id 25 dan 27 ke movie dengan id 2
+        // $movie = Movie::find(2);
+        // $movie->categories()->attach([25, 27]);
+        // return Movie::with('categories')->find(2);
+
+        // menambahkan movie dengan id 2 dan 3 ke category dengan id 25
+        // $category = Category::find(25);
+        // $category->movies()->attach([2, 3]);
+        // return Category::with('movies')->find(25);       // menampilkan category dengan id 25 beserta movie yang terhubung
+
+        // Tampilkan seluruh movie yang ada category-nya beserta kategorinya
+        $moviesWithCategories = Movie::with('categories')->has('categories')->get();
+        return $moviesWithCategories;
+    }
+
+    public function detachCategory()
+    {
+        // menghapus category dengan id 25, 26 dari movie dengan id 2
+        // $movie = Movie::find(2);
+        // $movie->categories()->detach([25, 26]); 
+        // return Movie::with('categories')->find(2);
+
+        // menghapus semua category yang terhubung dengan movie 3
+        $movie = Movie::find(3);
+        $movie->categories()->detach(); // menghapus semua category yang terhubung dengan movie 3
+        return Movie::with('categories')->find(3);
+
+        // menghapus movie dengan id 2 dan 3 dari category dengan id 25
+        // $category = Category::find(25);
+        // $category->movies()->detach([2, 3]);
+        // return Category::with('movies')->find(25);       // menampilkan category dengan id 25 beserta movie yang terhubung
+    }
+
+    public function syncCategory()
+    {
+        $movie = Movie::find(1);
+        $movie->categories()->sync([1,4]); 
+        // menghapus semua category yang terhubung dengan movie ?, dan menambahkan category dengan id ?, ?
+        
+        // Menghapus semua film yang sebelumnya terhubung dengan kategori tersebut di tabel pivot. 
+        // Menambahkan film dengan ID 1 ke kategori tersebut.
+        // $category = Category::find(3);
+        // $category->movies()->sync([1]); 
+        
+        return Movie::with('categories')->find(1);
+        /*
+            Metode sync() mengganti semua data yang ada di tabel pivot untuk relasi ini dengan data baru yang diberikan dalam array [25, 26].
+            Dalam hal ini, ID kategori 25 dan 26 akan menjadi satu-satunya kategori yang terkait dengan film tersebut (ID 2). Jika ada kategori lain yang sebelumnya terkait, mereka akan dihapus.
+
+            Ketika Anda memanggil sync() pada movie->categories(), Anda mengganti semua kategori untuk film tersebut.
+            Ketika Anda memanggil sync() pada category->movies(), Anda mengganti semua film untuk kategori tersebut, tetapi kategori lain yang terhubung dengan film tersebut tetap ada.
+        */
+    }
+}

@@ -17,7 +17,7 @@
     <x-slot name="main">
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
             @foreach ($movies as $movie)
-                <x-movie.card :index="$loop->index" :image="$movie->image" :title="$movie->title" :releasedate="$movie->release_date" :slug="$movie->slug" :movieId="$movie->id">
+                <x-movie.card :index="$loop->index" :image="$movie['image']" :title="$movie['title']" :releasedate="$movie['release_date']">
                 </x-movie.card>
             @endforeach
         </div>

@@ -259,7 +259,7 @@ Route::group(
         // /movie/{id}, show biasanya untuk mendapatkan data yang spesifik, dan contructor tidak dipanggil otomatis, 
         Route::get('/create', [MovieController::class, 'create'])->name('create');
         // taro create di atas show agar tidak dianggap parameter oleh route yang lain yang dibawah seperti id
-        Route::get('/{slug}' , [MovieController::class, 'show'])->name('show');
+        Route::get('/{id}' , [MovieController::class, 'show'])->name('show');
         //  menambah data
         Route::post('' , [MovieController::class, 'store'])->name('store');        
         // update data, karena put dan patch serupa, biasanya yang dipilih put
